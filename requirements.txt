@@ -4,4 +4,9 @@ matplotlib
 pandas
 seaborn
 keras
-category_encoders 
+category_encoders
+scikit-learn
+pyyaml
+dvc
+dvc-http
+dvclive
