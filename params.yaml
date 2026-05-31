@@ -1,0 +1,14 @@
+data:               # data-related parameters
+  n_samples: 50     # number of synthetic samples to generate
+  test_size: 0.2    # proportion of data held out for testing
+  random_seed: 42   # for reproducible splits
+
+model:              # model architecture and training parameters
+  epochs: 100       # number of training epochs
+  learning_rate: 0.01  # SGD learning rate (Keras SGD default)
+  optimizer: sgd    # optimizer name
+  loss: mae         # loss function (mean absolute error)
+  validation_split: 0.2  # fraction of training data used for validation
+
+evaluate:           # evaluation parameters
+  metrics_path: metrics.json  # where DVC reads tracked metrics from

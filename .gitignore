@@ -1,0 +1,9 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Local DVC artifacts produced by the pipeline (tracked via DVC, not git)
+/artifacts/
+/models/
