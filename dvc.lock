@@ -62,9 +62,9 @@ stages:
     outs:
     - path: metrics.json
       hash: md5
-      md5: 1d4761a0d6439d154ec66757cf7702b3
-      size: 465
+      md5: 4b4e6170a49f4d9bb3f62d4611349b49
+      size: 451
     - path: predictions_vs_actual.png
       hash: md5
-      md5: af23f0038c21808e6200d8b7f52650de
-      size: 35990
+      md5: 3f05a1ec2add09bc91f16d5d53dec475
+      size: 38959
