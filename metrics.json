@@ -1,0 +1,15 @@
+{
+    "timestamp": "2026-05-31T15:43:06.661036",
+    "model_type": "Linear Regression",
+    "epochs": 100,
+    "metrics": {
+        "mean_squared_error": 154.14915466308594,
+        "root_mean_squared_error": 12.415681804197703,
+        "mean_absolute_error": 10.91279125213623,
+        "r2_score": 0.9229500889778137
+    },
+    "training_history": {
+        "final_train_loss": 12.407299995422363,
+        "final_val_loss": 13.999483108520508
+    }
+}

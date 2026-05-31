@@ -1,0 +1,70 @@
+schema: '2.0'
+stages:
+  train:
+    cmd: python src/model.py
+    deps:
+    - path: params.yaml
+      hash: md5
+      md5: 452e064e72e7e0c9f7faaa4951a737e8
+      size: 675
+    - path: src/model.py
+      hash: md5
+      md5: 50400038b271f2df6b1cbbf7e60e6d68
+      size: 4065
+    - path: train/train.csv
+      hash: md5
+      md5: 422719fe482890a67f710de79ea7eb1c
+      size: 322
+    outs:
+    - path: artifacts/feature_columns.json
+      hash: md5
+      md5: 2c28ebd0f2368e2713fb5f9691462261
+      size: 13
+    - path: artifacts/training_history.json
+      hash: md5
+      md5: 0e17b7e3bfb6932e00425922c03f1ae9
+      size: 5808
+    - path: model_results.png
+      hash: md5
+      md5: ef2637205da35ebde3acd6bb6adecb62
+      size: 53033
+    - path: models/model.keras
+      hash: md5
+      md5: 4f5bed50d3b251dc2486a5793e0ea9e6
+      size: 14776
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+    - path: artifacts/feature_columns.json
+      hash: md5
+      md5: 2c28ebd0f2368e2713fb5f9691462261
+      size: 13
+    - path: artifacts/training_history.json
+      hash: md5
+      md5: 0e17b7e3bfb6932e00425922c03f1ae9
+      size: 5808
+    - path: models/model.keras
+      hash: md5
+      md5: 4f5bed50d3b251dc2486a5793e0ea9e6
+      size: 14776
+    - path: params.yaml
+      hash: md5
+      md5: 452e064e72e7e0c9f7faaa4951a737e8
+      size: 675
+    - path: src/evaluate.py
+      hash: md5
+      md5: b9065ff5530f69bac58eab7d8b269699
+      size: 4173
+    - path: test/test.csv
+      hash: md5
+      md5: 76a8553f2dba0a5c35c84b5a8c28ab02
+      size: 80
+    outs:
+    - path: metrics.json
+      hash: md5
+      md5: 1d4761a0d6439d154ec66757cf7702b3
+      size: 465
+    - path: predictions_vs_actual.png
+      hash: md5
+      md5: af23f0038c21808e6200d8b7f52650de
+      size: 35990

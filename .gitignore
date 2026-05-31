@@ -7,3 +7,6 @@ venv/
 # Local DVC artifacts produced by the pipeline (tracked via DVC, not git)
 /artifacts/
 /models/
+/model_results.png
+/predictions_vs_actual.png
+/metrics.txt
