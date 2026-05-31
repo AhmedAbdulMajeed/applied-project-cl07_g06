@@ -1,0 +1,4 @@
+[core]
+    remote = origin
+['remote "origin"']
+    url = https://dagshub.com/YOUR_USERNAME/YOUR_REPO.dvc

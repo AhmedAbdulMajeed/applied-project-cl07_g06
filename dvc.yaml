@@ -1,0 +1,27 @@
+stages:
+  train:                          # train the model and save outputs
+    cmd: python src/model.py
+    deps:                         # re-run this stage if any of these change
+      - src/model.py
+      - params.yaml
+      - train/train.csv
+    outs:                         # produced artifacts (cached + pushed by DVC)
+      - models/model.keras
+      - artifacts/feature_columns.json
+      - artifacts/training_history.json
+      - model_results.png
+
+  evaluate:                       # evaluate the model and record metrics
+    cmd: python src/evaluate.py
+    deps:
+      - src/evaluate.py
+      - models/model.keras
+      - artifacts/feature_columns.json
+      - artifacts/training_history.json
+      - test/test.csv
+      - params.yaml
+    outs:
+      - predictions_vs_actual.png
+    metrics:
+      - metrics.json:
+          cache: false            # small file; keep it in git, overwrite each run
