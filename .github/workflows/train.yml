@@ -1,47 +1,106 @@
-name: Train ML Model
+name: MLOps Pipeline
 
 on:
-  push:
+  push:                         # retrain when code or data is pushed
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch:
+  schedule:                     # scheduled retraining — every Sunday 00:00 UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch:            # manual trigger from the Actions tab
+    inputs:
+      epochs:
+        description: 'Number of training epochs'
+        required: false
+        default: '100'
 
 jobs:
-  train:
+  train-and-evaluate:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      # ── Checkout (PAT_TOKEN lets the job push commits back) ──
+      - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Set up Python
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PAT_TOKEN }}
+
+      # ── Python setup ───────────────────────────────────────
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
       - name: Cache pip dependencies
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          restore-keys: ${{ runner.os }}-pip-
+
       - name: Install dependencies
-        run: pip install -r requirements.txt 
+        run: |
+          pip install -r requirements.txt
+          pip install pytest
 
-      - name: Install test dependencies
-        run: pip install pytest
-        
-      - name: Run Tests
-        run: pytest
-      
-      - name: Train Model
-        run: python model.py
+      # ── Sanity tests before training ──────────────────────
+      - name: Run tests
+        run: pytest -q
 
+      # ── Point DVC's remote at DagsHub and authenticate ────
+      - name: Configure DVC remote (DagsHub)
+        run: |
+          dvc remote modify origin auth basic
+          dvc remote modify origin user ${{ secrets.DAGSHUB_USERNAME }}
+          dvc remote modify origin password ${{ secrets.DAGSHUB_TOKEN }}
+
+      - name: Pull data and prior outputs
+        run: dvc pull --allow-missing
+
+      # ── Optional: override epochs from manual run ─────────
+      - name: Override epochs if provided
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          python - <<'EOF'
+          import yaml
+          with open("params.yaml") as f:
+              p = yaml.safe_load(f)
+          p["model"]["epochs"] = int("${{ github.event.inputs.epochs }}")
+          with open("params.yaml", "w") as f:
+              yaml.dump(p, f)
+          print(f"Epochs set to {p['model']['epochs']}")
+          EOF
+
+      # ── Reproduce the pipeline (only re-runs changed stages) ──
+      - name: Run DVC pipeline
+        run: dvc repro
+
+      - name: Push artifacts to DVC remote
+        run: dvc push
+
+      - name: Show metrics
+        run: |
+          dvc metrics show
+          dvc metrics diff HEAD~1 || echo "No previous run to compare against"
+
+      # ── Commit updated lock file and metrics back to the repo ──
+      - name: Commit dvc.lock and metrics
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dvc.lock metrics.json
+          git diff --staged --quiet || git commit -m "chore: update dvc.lock and metrics [skip ci]"
+          git push
+
+      # ── Upload artifacts for download from the Actions UI ──
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
           name: model-results
           path: |
             model_results.png
-            metrics.txt 
-
+            predictions_vs_actual.png
+            metrics.json
+            metrics.txt
+          retention-days: 30
